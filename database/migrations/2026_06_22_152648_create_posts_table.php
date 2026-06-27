@@ -11,17 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
+                Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-        });
-    }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('posts');
-    }
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            $table->string('hook_propose');
+            $table->json('body_points')->nullable();
+            $table->integer('technical_readability_score')->default(0);
+            $table->json('suggested_hashtags')->nullable();
+            $table->text('tone_compliance_justification')->nullable();
+
+            $table->enum('status', ['draft', 'archived'])->default('draft');
+
+            $table->timestamps();
+        
+        });
+    }   
+ 
+    
+
+    
 };
