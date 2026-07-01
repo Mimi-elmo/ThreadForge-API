@@ -8,12 +8,13 @@ class Post extends Model
 {
     protected $fillable = [
         'user_id',
+        'blueprint_id',
         'hook_propose',
         'body_points',
         'technical_readability_score',
         'suggested_hashtags',
         'tone_compliance_justification',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -21,6 +22,13 @@ class Post extends Model
         'suggested_hashtags' => 'array',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-
+    public function blueprint()
+    {
+        return $this->belongsTo(Blueprint::class);
+    }
 }
