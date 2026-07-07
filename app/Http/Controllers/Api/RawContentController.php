@@ -21,8 +21,10 @@ class RawContentController extends Controller
         ]);
 
 
-        return new RawContentResource($rawContent);
-
+         return response()->json([
+        'message' => 'Content accepted for processing',
+        'data' => new RawContentResource($rawContent)
+    ], 202);
     }
 
 }
