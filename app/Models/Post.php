@@ -31,4 +31,8 @@ class Post extends Model
     {
         return $this->belongsTo(Blueprint::class);
     }
+    public function rawContent()
+    {
+        return $this->belongsTo(RawContent::class);
+    }       
 }

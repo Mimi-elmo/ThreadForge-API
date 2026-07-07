@@ -29,4 +29,9 @@ class Blueprint extends Model
     {
         return $this->hasMany(Post::class);
     }
+
+    public function rawContents()
+    {
+        return $this->hasMany(RawContent::class);
+    }
 }
