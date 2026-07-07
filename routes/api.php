@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\BlueprintController;
+ use App\Http\Controllers\Api\RawContentController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -25,7 +27,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('blueprints', BlueprintController::class);
-});
 
-    
+   
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post(
+        '/content/repurpose',
+        [RawContentController::class, 'store']
+    );
+
+});
+});
 });
