@@ -13,6 +13,21 @@ return new class extends Migration
     {
         Schema::create('blueprints', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->string('name');
+            $table->string('target_audience');
+
+            $table->string('tone');
+
+            $table->unsignedSmallInteger('max_characters')->default(280);
+            $table->unsignedTinyInteger('max_hashtags')->default(1);
+
+            $table->json('rules')->nullable();
+
             $table->timestamps();
         });
     }
