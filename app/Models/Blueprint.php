@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\BlueprintFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Blueprint extends Model
 {
+    /** @use HasFactory<BlueprintFactory> */
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'name',
@@ -28,5 +32,10 @@ class Blueprint extends Model
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function rawContents()
+    {
+        return $this->hasMany(RawContent::class);
     }
 }

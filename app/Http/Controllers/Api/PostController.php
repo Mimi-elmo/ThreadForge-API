@@ -23,17 +23,22 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'blueprint_id' => ['nullable', 'exists:blueprints,id'],
+            'hook_propose' => ['required', 'string'],
+            'body_points' => ['nullable', 'array'],
+            'technical_readability_score' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'suggested_hashtags' => ['nullable', 'array'],
+            'tone_compliance_justification' => ['nullable', 'string'],
+        ]);
+
         $post = Post::create([
             'user_id' => auth()->id(),
-            'hook_propose' => $request->hook_propose,
-            'body_points' => $request->body_points,
-            'technical_readability_score' => $request->technical_readability_score,
-            'suggested_hashtags' => $request->suggested_hashtags,
-            'tone_compliance_justification' => $request->tone_compliance_justification , 
+            ...$validated,
             'status' => 'draft',
-
         ]);
-            return response()->json($post, 201);
+
+        return response()->json($post, 201);
     }
 
     /**

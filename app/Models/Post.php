@@ -9,6 +9,7 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'blueprint_id',
+        'raw_content_id',
         'hook_propose',
         'body_points',
         'technical_readability_score',
@@ -31,4 +32,8 @@ class Post extends Model
     {
         return $this->belongsTo(Blueprint::class);
     }
+    public function rawContent()
+    {
+        return $this->belongsTo(RawContent::class);
+    }       
 }
