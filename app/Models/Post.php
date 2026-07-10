@@ -9,6 +9,7 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'blueprint_id',
+        'raw_content_id',
         'hook_propose',
         'body_points',
         'technical_readability_score',
