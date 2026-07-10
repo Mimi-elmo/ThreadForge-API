@@ -1,58 +1,108 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ThreadForge API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API de repurposing de contenu technique en posts X/Twitter, propulsée par Laravel AI + Groq.
 
-## About Laravel
+## Prérequis
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP ^8.3
+- Composer
+- Node.js & npm
+- MySQL (ou SQLite en dev)
+- Une clé API [Groq](https://console.groq.com)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Configuration
 
-## Contributing
+Renseignez votre clé Groq dans `.env` :
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+GROQ_API_KEY=votre_clé_ici
+```
 
-## Code of Conduct
+## Lancement
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer run dev
+```
 
-## Security Vulnerabilities
+Lance le serveur (`php artisan serve`), la queue (`php artisan queue:listen`) et Vite simultanément.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Tests
 
-## License
+```bash
+composer run test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Équivalent à :
+
+```bash
+php artisan config:clear
+php artisan test
+```
+
+Les tests utilisent **Pest** et une base SQLite en mémoire. Aucune vraie API IA n'est appelée — la queue est faked avec `Queue::fake()`.
+
+### Structure des tests
+
+| Fichier | Ce qu'il teste |
+|---------|----------------|
+| `tests/Feature/AuthTest.php` | Login (200 avec token, 401 avec mauvais password) |
+| `tests/Feature/BlueprintAuthTest.php` | Route protégée (401 sans token, 200 + structure avec token) |
+| `tests/Feature/BlueprintValidationTest.php` | Validation (422 sur champ obligatoire manquant) |
+| `tests/Feature/RawContentTest.php` | Génération asynchrone (202 + dispatch du Job) |
+
+## API
+
+Toutes les routes sont préfixées par `/api`.
+
+### Authentification
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/api/register` | Créer un compte |
+| POST | `/api/login` | Se connecter (reçoit un token Sanctum) |
+| POST | `/api/logout` | Révoquer le token (auth requis) |
+
+### Blueprints
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/blueprints` | Lister les blueprints (auth requis) |
+| POST | `/api/blueprints` | Créer un blueprint (auth requis) |
+| GET | `/api/blueprints/{id}` | Voir un blueprint (auth requis) |
+| PUT/PATCH | `/api/blueprints/{id}` | Modifier un blueprint (auth requis) |
+| DELETE | `/api/blueprints/{id}` | Supprimer un blueprint (auth requis) |
+
+### Posts
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/posts` | Lister les posts (auth requis) |
+| POST | `/api/posts` | Créer un post (auth requis) |
+| GET | `/api/posts/{id}` | Voir un post (auth requis) |
+| PUT/PATCH | `/api/posts/{id}` | Modifier un post (auth requis) |
+| DELETE | `/api/posts/{id}` | Supprimer un post (auth requis) |
+
+### Content
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/api/content/repurpose` | Envoyer du contenu brut → génération asynchrone (auth requis) |
+
+## Déploiement
+
+> ⚠️ **Non déployé** — API disponible uniquement en local.
+
+<!-- Si déployé : remplacer par l'URL réelle
+**URL de l'API :** `https://votre-domaine.com/api`
+-->
